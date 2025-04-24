@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 根據環境決定是否使用靜態導出
-  // 在 Vercel 上不使用靜態導出
-  output: process.env.VERCEL ? undefined : 'export',
+  // 使用動態渲染方式用於Vercel，這樣能確保CSS模塊正確工作
+  output: 'standalone',
   
-  // 只在非 Vercel 環境中設置 basePath
-  basePath: process.env.VERCEL ? '' : (process.env.NODE_ENV === 'production' ? '/binge-eating-project' : ''),
-  
-  // 只在非 Vercel 環境中設置 assetPrefix
-  assetPrefix: process.env.VERCEL ? '' : (process.env.NODE_ENV === 'production' ? '/binge-eating-project/' : ''),
+  // 設定基礎路徑為空，適用於Vercel環境
+  basePath: '',
   
   // 調整圖像配置
   images: {
@@ -24,6 +20,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  // 移除不必要的選項，避免路由問題
+  skipTrailingSlashRedirect: false,
+  trailingSlash: false,
 };
 
 export default nextConfig;

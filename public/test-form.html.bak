@@ -49,15 +49,6 @@
             background-color: #ffebee;
             color: #b71c1c;
         }
-        .back-link {
-            display: block;
-            margin-top: 20px;
-            color: #e11d48;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
@@ -90,20 +81,12 @@
         <button type="submit" id="submit-btn">提交表單</button>
     </form>
     
-    <a href="/" id="back-link" class="back-link">← 返回主頁</a>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化Supabase客戶端
             const supabaseUrl = 'https://vznhhyqkwdzlkvnbofij.supabase.co';
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bmhoeXFrd2R6bGt2bmJvZmlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzY4MjgsImV4cCI6MjA2MDgxMjgyOH0.3LZ8Xgfkgwl5Qg2SZVjUdlC8Ts6kwk-diaKajhnZDa0';
             const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-            // 不再需要檢測環境，直接設置返回連結
-            const backLink = document.getElementById('back-link');
-            if (backLink) {
-                backLink.href = '/';
-            }
 
             // 表單提交處理
             const form = document.getElementById('consultation-form');

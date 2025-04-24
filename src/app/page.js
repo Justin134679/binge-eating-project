@@ -2,6 +2,8 @@ import React from 'react';
 import styles from './page.module.css';
 
 export default function Home() {
+  // 不再需要檢測環境和設置基礎路徑
+  
   return (
     <div className={styles.container}>
       <main>
@@ -113,7 +115,7 @@ export default function Home() {
             <p>填寫以下表單，我們的專業團隊將與您聯繫</p>
           </div>
           <div className={styles.formContainer} data-aos="fade-up" data-aos-delay="100">
-            <a href="/binge-eating-project/test-form.html" className={styles.btnDanger}>填寫諮詢表單</a>
+            <a href="/test-form.html" className={styles.btnDanger}>填寫諮詢表單</a>
           </div>
         </section>
       </main>

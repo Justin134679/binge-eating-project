@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
         <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
         
-        {/* 在頁面加載前内嵌關鍵CSS變量 */}
+        {/* 內嵌關鍵CSS變量 */}
         <style dangerouslySetInnerHTML={{
           __html: `
             :root {
@@ -43,18 +43,34 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         
-        {/* 外部腳本 */}
-        <Script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" strategy="afterInteractive" />
+        {/* 優先加載 AOS 腳本 */}
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" strategy="beforeInteractive" />
+        
+        {/* 確保 AOS 在所有情況下都能初始化 */}
         <Script id="aos-init" strategy="afterInteractive">
           {`
-            document.addEventListener('DOMContentLoaded', function() {
-              AOS.init({
-                duration: 1000,
-                once: false,
-                mirror: true,
-                offset: 120,
-              });
-            });
+            // 函數定義
+            function initAOS() {
+              if (typeof AOS !== 'undefined') {
+                AOS.init({
+                  duration: 1000,
+                  once: false,
+                  mirror: true,
+                  offset: 120,
+                  disable: 'mobile'
+                });
+              } else {
+                console.warn('AOS not loaded yet, retrying in 500ms');
+                setTimeout(initAOS, 500);
+              }
+            }
+            
+            // 在多個事件觸發點嘗試初始化AOS
+            document.addEventListener('DOMContentLoaded', initAOS);
+            window.addEventListener('load', initAOS);
+            
+            // 立即執行一次
+            initAOS();
           `}
         </Script>
       </body>
