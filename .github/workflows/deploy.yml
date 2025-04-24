@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ] # 當推送到 main 或 master 分支時觸發
+  workflow_dispatch: # 允許手動觸發
+
+# 設置 GITHUB_TOKEN 的權限
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# 允許一個並發部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 構建 job
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3 # 檢出代碼
+      
+      - name: Setup Node.js ⚙️
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # 使用 Node.js 20 版本
+          cache: 'npm' # 緩存 npm 依賴
+      
+      - name: Install Dependencies 📦
+        run: npm ci # 使用 ci 命令安裝依賴，這比 npm install 更適合 CI 環境
+      
+      - name: Build 🏗️
+        run: npm run build # 僅執行構建
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      
+      - name: Check Output Directory
+        run: ls -la # 檢查構建輸出
+      
+      - name: Check Out Directory
+        run: ls -la out || echo "out directory not found"
+      
+      - name: Add .nojekyll file 📄
+        run: touch out/.nojekyll # 防止 GitHub Pages 使用 Jekyll 處理
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: out
+  
+  # 部署 job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v3 
