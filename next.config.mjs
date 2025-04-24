@@ -1,14 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 設置輸出為靜態導出，使其適合 GitHub Pages
-  output: 'export',
+  // 根據環境決定是否使用靜態導出
+  // 在 Vercel 上不使用靜態導出
+  output: process.env.VERCEL ? undefined : 'export',
   
-  // 設置基本路徑為項目名稱，使其在 GitHub Pages 上正確運行
-  // 如果項目名稱不是 'binge-eating-project'，請相應更改
-  basePath: process.env.NODE_ENV === 'production' ? '/binge-eating-project' : '',
+  // 只在非 Vercel 環境中設置 basePath
+  basePath: process.env.VERCEL ? '' : (process.env.NODE_ENV === 'production' ? '/binge-eating-project' : ''),
   
-  // 確保資源引用正確
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/binge-eating-project/' : '',
+  // 只在非 Vercel 環境中設置 assetPrefix
+  assetPrefix: process.env.VERCEL ? '' : (process.env.NODE_ENV === 'production' ? '/binge-eating-project/' : ''),
   
   // 調整圖像配置
   images: {
