@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暴飲暴食警訊 | 健康危機解析</title>
+    <!-- 引入字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 引入動畫庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- 引入AOS庫 -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- 引入Font Awesome圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- 引入Supabase JS客戶端 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --danger: #e11d48;
+            --danger-light: #fb7185;
+            --danger-dark: #be123c;
+            --warning: #f97316;
+            --warning-light: #fdba74;
+            --warning-dark: #c2410c;
+            --dark: #27272a;
+            --dark-light: #52525b;
+            --gray: #71717a;
+            --light: #ffffff;
+            --light-gray: #f4f4f5;
+            --bg-light: #fafafa;
+            --border-light: #e4e4e7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4 {
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+        }
+        
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        h3 {
+            font-size: 1.75rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            color: #1f2937;
+            font-weight: 450;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .section {
+            padding: 5rem 0;
+            position: relative;
+        }
+        
+        .text-danger {
+            color: var(--danger);
+        }
+        
+        .text-warning {
+            color: var(--warning-dark);
+        }
+        
+        .highlight {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background-color: var(--danger-light);
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        /* 閃爍動畫 */
+        @keyframes pulse-danger {
+            0% {
+                box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(225, 29, 72, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(225, 29, 72, 0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse-danger 2s infinite;
+        }
+        
+        /* 升級版警示三角形區域 */
+        .warning-area {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .warning-triangle {
+            width: 120px;
+            height: 110px;
+            position: relative;
+            background: linear-gradient(145deg, var(--warning), var(--warning-dark));
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+            animation: pulse-light 3s infinite;
+        }
+        
+        .warning-triangle::after {
+            content: '!';
+            position: absolute;
+            bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .warning-triangle::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 130px;
+            background: transparent;
+            border: 3px dashed var(--warning-light);
+            opacity: 0.5;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            top: -10px;
+            left: -10px;
+            animation: rotate-slow 20s linear infinite;
+        }
+        
+        .warning-title {
+            font-size: 1.2rem;
+            color: var(--warning-dark);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+        
+        @keyframes pulse-light {
+            0% {
+                box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+            }
+            50% {
+                box-shadow: 0 15px 30px rgba(249, 115, 22, 0.5);
+            }
+            100% {
+                box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+            }
+        }
+        
+        @keyframes rotate-slow {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* 標題樣式優化 */
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            background: linear-gradient(135deg, var(--dark), var(--danger));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .hero-title .highlight {
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(135deg, var(--danger), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .hero-title .highlight::after {
+            background: none;
+        }
+        
+        /* 更新按鈕樣式 */
+        .hero-buttons {
+            display: flex;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            background-color: var(--danger);
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            margin-right: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(225, 29, 72, 0.3);
+        }
+        
+        .hero-cta:hover {
+            background-color: var(--danger-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(225, 29, 72, 0.4);
+        }
+        
+        .hero-cta:nth-child(2) {
+            background-color: transparent;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            box-shadow: 0 5px 15px rgba(225, 29, 72, 0.1);
+        }
+        
+        .hero-cta:nth-child(2):hover {
+            background-color: rgba(225, 29, 72, 0.05);
+            color: var(--danger-dark);
+            box-shadow: 0 10px 20px rgba(225, 29, 72, 0.2);
+        }
+        
+        .hero-cta i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .heart-monitor {
+            background-color: var(--light);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 2px solid var(--danger-light);
+            margin-top: 3rem;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(225, 29, 72, 0.1);
+        }
+        
+        .heart-line {
+            display: flex;
+            align-items: center;
+            height: 100px;
+        }
+        
+        .ecg-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 15s linear infinite;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        /* 症狀區域 */
+        .symptoms {
+            background-color: var(--light-gray);
+            position: relative;
+        }
+        
+        .symptoms::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(225, 29, 72, 0.03) 20px,
+                rgba(225, 29, 72, 0.03) 40px
+            );
+        }
+        
+        .symptoms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .symptom-card {
+            background-color: var(--light);
+            border-left: 4px solid var(--danger);
+            padding: 2rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .symptom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .symptom-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .symptom-icon svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+        
+        /* 風險區域 */
+        .risks {
+            background-color: var(--bg-light);
+            position: relative;
+        }
+        
+        .risks::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--danger-light) 0%, transparent 70%);
+            opacity: 0.1;
+        }
+        
+        .chart-container {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: 450px;
+        }
+        
+        .risk-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .risk-indicator {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--light);
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-top: 3px solid var(--danger);
+        }
+        
+        .risk-value {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--danger);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        
+        .risk-label {
+            font-size: 0.9rem;
+            color: var(--dark-light);
+        }
+        
+        /* 解決方案區域 */
+        .solutions {
+            background: linear-gradient(to bottom, var(--light-gray), var(--light));
+        }
+        
+        .solution-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .solution-step {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .solution-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .solution-step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--danger), var(--warning));
+        }
+        
+        .step-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 見證區域 */
+        .testimonials {
+            background-color: var(--bg-light);
+            position: relative;
+        }
+        
+        .testimonial-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .testimonial-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+        }
+        
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 5rem;
+            color: var(--warning-light);
+            opacity: 0.2;
+            line-height: 1;
+        }
+        
+        .testimonial-text {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .testimonial-author {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4a4a4a;
+            margin-right: 1rem;
+            overflow: hidden;
+        }
+        
+        .author-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .author-info {
+            line-height: 1.3;
+        }
+        
+        .author-name {
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .author-title {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        /* 重新設計的CTA區域 - 豐富版本 */
+        .cta {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0, #fd79a8);
+            padding: 5rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNCIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L3N2Zz4=');
+            opacity: 0.15;
+        }
+        
+        .cta::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+        
+        .cta .wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDQwIDMyMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAsNjRMNjAsNzQuN0MxMjAsODUsMjQwLDEwNywzNjAsMTEyQzQ4MCwxMTcsNjAwLDEwNyw3MjAsOTZDODQwLDg1LDk2MCw3NSwxMDgwLDEwMS4zQzEyMDAsMTI4LDEzMjAsMTkyLDEzODAsMjI0TDE0NDAsMjU2TDE0NDAsMEwxMzgwLDBDMTMyMCwwLDEyMDAsMCwxMDgwLDBDOTYwLDAsODQwLDAsNjAwLDBDNjAwLDAsNDgwLDMsMzYwLDNDMjQwLDMsMTIwLDMsNjAsM0wwLDNaIj48L3BhdGg+PC9zdmc+');
+            background-size: 1440px 320px;
+            transform: rotate(180deg);
+        }
+        
+        .cta .container {
+            position: relative;
+            z-index: 5;
+        }
+        
+        .cta-top {
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-top::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: rotate(45deg);
+            animation: shine 8s infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                left: -100%;
+                top: -100%;
+            }
+            20%, 100% {
+                left: 100%;
+                top: 100%;
+            }
+        }
+        
+        .cta-icon {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, var(--warning-light), var(--danger-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(225, 29, 72, 0.2);
+            position: relative;
+        }
+        
+        .cta-icon i {
+            font-size: 3.5rem;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .cta-icon::after {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            border: 2px dashed rgba(255,255,255,0.5);
+            border-radius: 50%;
+            animation: spin 20s linear infinite;
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .cta h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .cta h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--danger-light), var(--warning));
+            border-radius: 3px;
+        }
+        
+        .cta p {
+            color: #444;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 1.5rem auto;
+            line-height: 1.7;
+        }
+        
+        .cta-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+        
+        .cta-feature {
+            flex: 0 0 300px;
+            padding: 2rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .cta-feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--danger-light), var(--warning));
+            z-index: -1;
+        }
+        
+        .cta-feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .cta-feature-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--warning-light), var(--danger-light));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(45deg);
+        }
+        
+        .cta-feature-icon i {
+            font-size: 1.8rem;
+            color: white;
+            transform: rotate(-45deg);
+        }
+        
+        .cta-feature h3 {
+            color: #333;
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .cta-feature p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        
+        .cta-button-wrapper {
+            margin-top: 2.5rem;
+            position: relative;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3.5rem;
+            background: linear-gradient(135deg, var(--danger), var(--warning));
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.25);
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        .cta-button i {
+            margin-right: 0.8rem;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .shape {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 10s linear infinite;
+        }
+        
+        .shape:nth-child(1) {
+            width: 50px;
+            height: 50px;
+            top: 10%;
+            left: 10%;
+            animation-duration: 15s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 70px;
+            height: 70px;
+            top: 20%;
+            right: 15%;
+            animation-duration: 25s;
+            animation-delay: 2s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            bottom: 20%;
+            left: 20%;
+            animation-duration: 20s;
+            animation-delay: 5s;
+        }
+        
+        .shape:nth-child(4) {
+            width: 60px;
+            height: 60px;
+            bottom: 15%;
+            right: 10%;
+            animation-duration: 18s;
+            animation-delay: 8s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(180deg);
+                opacity: 0.6;
+            }
+        }
+        
+        /* 聯絡表單區域 */
+        #contact {
+            background-color: var(--light);
+        }
+        
+        .contact-form {
+            max-width: 600px; 
+            margin: 2rem auto; 
+            background: var(--light); 
+            padding: 2rem; 
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+        }
+        
+        .contact-form input, .contact-form textarea {
+            width: 100%; 
+            padding: 0.75rem; 
+            border-radius: 5px; 
+            border: 1px solid var(--border-light); 
+            background: var(--light); 
+            color: var(--dark);
+        }
+        
+        .contact-form label {
+            display: block; 
+            margin-bottom: 0.5rem; 
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .contact-form button {
+            background-color: var(--danger); 
+            color: white; 
+            padding: 0.75rem 2rem; 
+            border: none; 
+            border-radius: 5px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+        }
+        
+        .contact-form button:hover {
+            background-color: var(--danger-dark);
+        }
+        
+        .contact-form input:focus, .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--danger-light);
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
+        }
+        
+        /* 底部區域 */
+        .footer {
+            background-color: var(--light-gray);
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .footer p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .hero-content {
+                text-align: center;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .heart-monitor {
+                margin-top: 2rem;
+            }
+            
+            .risk-value {
+                font-size: 2.5rem;
+            }
+        }
+        
+        .risk-circle {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1rem;
+        }
+        
+        .risk-circle svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .circle-bg {
+            fill: none;
+            stroke: #eee;
+            stroke-width: 3.8;
+        }
+        
+        .circle {
+            fill: none;
+            stroke-width: 3.8;
+            stroke: var(--danger);
+            stroke-linecap: round;
+            animation: progress 1s ease-out forwards;
+        }
+        
+        .percentage {
+            fill: var(--danger);
+            font-size: 0.5em;
+            text-anchor: middle;
+            font-weight: 700;
+        }
+        
+        @keyframes progress {
+            0% {
+                stroke-dasharray: 0 100;
+            }
+        }
+        
+        /* 為每個風險指標設置不同顏色 */
+        .risk-indicator:nth-child(1) .circle {
+            stroke: var(--danger);
+        }
+        
+        .risk-indicator:nth-child(2) .circle {
+            stroke: var(--danger-dark);
+        }
+        
+        .risk-indicator:nth-child(3) .circle {
+            stroke: var(--warning);
+        }
+        
+        .risk-indicator:nth-child(4) .circle {
+            stroke: var(--warning-dark);
+        }
+        
+        /* 表單狀態樣式優化 */
+        .form-status {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .form-status.info {
+            display: block;
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #bbdefb;
+        }
+        
+        .form-status.success {
+            display: block;
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .form-status.error {
+            display: block;
+            background-color: #ffebee;
+            color: #b71c1c;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
+        .contact-form input.error, 
+        .contact-form textarea.error {
+            border-color: var(--danger);
+            background-color: rgba(225, 29, 72, 0.05);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-submit-success {
+            text-align: center;
+            padding: 2rem;
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border: 1px solid #c8e6c9;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .form-submit-success i {
+            font-size: 3rem;
+            color: #4caf50;
+            margin-bottom: 1rem;
+        }
+        
+        .form-submit-success h3 {
+            color: #1b5e20;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 提交按鈕加載動畫 */
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+        
+        .spinner:before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            animation: spinner 0.8s linear infinite;
+        }
+        
+        .submit-btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .loading {
+            color: transparent !important;
+            position: relative;
+        }
+        
+        /* 底部常駐CTA樣式 */
+        .floating-cta {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 0 20px;
+        }
+        
+        .floating-cta-inner {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(6, 199, 85, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-cta-inner:hover {
+            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .line-cta-btn {
+            background: linear-gradient(135deg, #06C755, #04A346);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3);
+            text-decoration: none;
+        }
+        
+        .line-cta-btn i {
+            margin-right: 10px;
+            font-size: 28px; /* 增大圖標尺寸 */
+        }
+        
+        .line-cta-btn:hover {
+            background: linear-gradient(135deg, #04A346, #06C755);
+            box-shadow: 0 6px 15px rgba(6, 199, 85, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* 在小屏幕上調整CTA樣式 */
+        @media (max-width: 768px) {
+            .floating-cta {
+                bottom: 15px;
+                padding: 0 10px;
+            }
+            
+            .floating-cta-inner {
+                width: 100%;
+                padding: 8px 15px;
+                justify-content: center;
+            }
+            
+            .line-cta-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .line-cta-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            .line-cta-btn i {
+                font-size: 24px; /* 在小屏幕上也保持較大尺寸 */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 頂部區域 -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="warning-area">
+                <div class="warning-triangle pulse"></div>
+                <div class="warning-title">健康警示</div>
+            </div>
+            
+            <h1 class="hero-title">暴飲暴食：<span class="highlight">健康危機</span>警報</h1>
+            <p class="animate__animated animate__fadeIn">你的身體正在向你發出警訊。每一次的暴飲暴食不只是體重問題，更是一連串健康風險的開始。了解你的身體正面臨的危機，掌握改變的關鍵。</p>
+            
+            <div class="hero-buttons">
+                <a href="#risks" class="hero-cta pulse"><i class="fas fa-exclamation-circle"></i>查看健康風險</a>
+                <a href="#solutions" class="hero-cta"><i class="fas fa-lightbulb"></i>了解解決方案</a>
+            </div>
+            
+            <div class="heart-monitor">
+                <h3>你的身體健康指數正在下降...</h3>
+                <div class="heart-line">
+                    <svg width="100%" height="100" viewBox="0 0 1000 100">
+                        <path class="ecg-line" d="M0,50 Q50,30 100,50 T200,50 T300,50 T350,50 L370,50 L380,20 L390,80 L400,50 L410,50 T500,50 T600,50 T700,50 T800,50 T900,50 T1000,50" fill="none" stroke="var(--danger)" stroke-width="2" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 症狀與特徵區域 -->
+    <section class="section symptoms" id="symptoms">
+        <div class="container">
+            <h2 data-aos="fade-up">暴飲暴食的<span class="highlight">危險信號</span></h2>
+            <p data-aos="fade-up" data-aos-delay="100">以下症狀是你身體向你發出的警告，請認真對待這些信號。</p>
+            
+            <div class="symptoms-grid">
+                <div class="symptom-card" data-aos="fade-up" data-aos-delay="150">
+                    <div class="symptom-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                            <path d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5h-15a1.5 1.5 0 0 1-1.5-1.5v-8.25m16.5 0a1.5 1.5 0 0 0-1.5-1.5h-13.5a1.5 1.5 0 0 0-1.5 1.5m16.5 0v-1.5a1.5 1.5 0 0 0-1.5-1.5h-13.5a1.5 1.5 0 0 0-1.5 1.5v1.5m4.5-4.5v1.5m7.5-1.5v1.5"></path>
+                        </svg>
+                    </div>
+                    <h3>失控進食</h3>
+                    <p>一旦開始進食就難以停止，常常吃到感到不適才結束。這種行為模式在壓力大或情緒波動時更為明顯。</p>
+                    <p class="text-danger">危險指數: 極高</p>
+                </div>
+                
+                <div class="symptom-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="symptom-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                            <path d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3>情緒崩潰循環</h3>
+                    <p>進食後感到強烈的內疚、羞恥和自責，但下次情緒低落時又會重複相同的行為，形成惡性循環。</p>
+                    <p class="text-danger">危險指數: 高</p>
+                </div>
+                
+                <div class="symptom-card" data-aos="fade-up" data-aos-delay="250">
+                    <div class="symptom-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                            <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
+                        </svg>
+                    </div>
+                    <h3>能量波動</h3>
+                    <p>大量食物攝取後會導致血糖急劇升高然後迅速下降，造成疲勞、注意力不集中和情緒起伏不定。</p>
+                    <p class="text-danger">危險指數: 中高</p>
+                </div>
+                
+                <div class="symptom-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="symptom-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"></path>
+                        </svg>
+                    </div>
+                    <h3>健康惡化</h3>
+                    <p>長期暴飲暴食不僅增加體重，還會引發消化問題、心臟負擔加重、血壓升高等一系列健康問題。</p>
+                    <p class="text-warning">危險指數: 極高</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 風險數據區域 -->
+    <section class="section risks" id="risks">
+        <div class="container">
+            <h2 data-aos="fade-up">暴飲暴食的<span class="text-danger">致命風險</span></h2>
+            <p data-aos="fade-up" data-aos-delay="100">科學研究顯示，暴飲暴食型肥胖與多種慢性疾病密切相關。以下數據反映了相比一般人群的風險增加比例。</p>
+            
+            <div class="chart-container" data-aos="fade-up" data-aos-delay="150">
+                <canvas id="healthRiskChart"></canvas>
+            </div>
+            
+            <div class="risk-indicators">
+                <div class="risk-indicator" data-aos="fade-up" data-aos-delay="200">
+                    <div class="risk-circle" data-value="85">
+                        <svg viewBox="0 0 36 36">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <text x="18" y="20.35" class="percentage">85%</text>
+                        </svg>
+                    </div>
+                    <div class="risk-label">2型糖尿病風險增加</div>
+                </div>
+                
+                <div class="risk-indicator" data-aos="fade-up" data-aos-delay="250">
+                    <div class="risk-circle" data-value="72">
+                        <svg viewBox="0 0 36 36">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke-dasharray="72, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <text x="18" y="20.35" class="percentage">72%</text>
+                        </svg>
+                    </div>
+                    <div class="risk-label">心血管疾病風險增加</div>
+                </div>
+                
+                <div class="risk-indicator" data-aos="fade-up" data-aos-delay="300">
+                    <div class="risk-circle" data-value="68">
+                        <svg viewBox="0 0 36 36">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke-dasharray="68, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <text x="18" y="20.35" class="percentage">68%</text>
+                        </svg>
+                    </div>
+                    <div class="risk-label">高血壓風險增加</div>
+                </div>
+                
+                <div class="risk-indicator" data-aos="fade-up" data-aos-delay="350">
+                    <div class="risk-circle" data-value="65">
+                        <svg viewBox="0 0 36 36">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke-dasharray="65, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <text x="18" y="20.35" class="percentage">65%</text>
+                        </svg>
+                    </div>
+                    <div class="risk-label">脂肪肝風險增加</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 解決方案區域 -->
+    <section class="section solutions" id="solutions">
+        <div class="container">
+            <h2 data-aos="fade-up">突破<span class="highlight">暴飲暴食</span>循環</h2>
+            <p data-aos="fade-up" data-aos-delay="100">改變是可能的。通過科學方法和專業支持，你可以打破暴飲暴食的惡性循環，重獲健康與自信。</p>
+            
+            <div class="solution-steps">
+                <div class="solution-step" data-aos="fade-up" data-aos-delay="150">
+                    <span class="step-number">01</span>
+                    <h3>情緒意識培養</h3>
+                    <p>學習識別進食衝動背後的情緒觸發因素，建立情緒日記，記錄進食與情緒的關聯性。</p>
+                    <p>通過專業心理輔導，掌握有效的情緒管理技巧，不再用食物來麻痺情緒。</p>
+                </div>
+                
+                <div class="solution-step" data-aos="fade-up" data-aos-delay="200">
+                    <span class="step-number">02</span>
+                    <h3>建立規律飲食計劃</h3>
+                    <p>制定科學的營養攝入計劃，確保三餐定時定量，避免過度飢餓導致的失控進食。</p>
+                    <p>合理安排蛋白質、複合碳水和健康脂肪的比例，保持血糖穩定。</p>
+                </div>
+                
+                <div class="solution-step" data-aos="fade-up" data-aos-delay="250">
+                    <span class="step-number">03</span>
+                    <h3>壓力管理與替代策略</h3>
+                    <p>學習健康的壓力應對機制，如冥想、瑜伽、深呼吸等技巧，降低壓力激素水平。</p>
+                    <p>建立食物以外的情緒發洩管道，如運動、繪畫、寫日記或與朋友交流。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 見證區域 -->
+    <section class="section testimonials">
+        <div class="container">
+            <h2 data-aos="fade-up">成功<span class="highlight">突破</span>案例</h2>
+            <p data-aos="fade-up" data-aos-delay="100">聽聽那些已經成功克服暴飲暴食問題的人怎麼說。</p>
+            
+            <div class="testimonial-cards">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="150">
+                    <div class="testimonial-text">
+                        <p>「我曾經在壓力大時無法控制進食，一次可以吃掉整盒餅乾。通過專業的飲食計劃和情緒管理訓練，現在我已經能夠意識到自己的情緒觸發點，並用更健康的方式應對。」</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="https://picsum.photos/50/50" alt="李小姐照片">
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">李小姐</div>
+                            <div class="author-title">32歲，行銷專員</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="testimonial-text">
+                        <p>「我的體重一直反覆上升下降，每次減肥成功後又會因為情緒問題暴飲暴食。專業的營養師和心理諮商幫助我找到了問題根源，現在我不再追求極端減肥，而是維持健康的生活方式。」</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="https://picsum.photos/50/51" alt="張先生照片">
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">張先生</div>
+                            <div class="author-title">45歲，工程師</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="250">
+                    <div class="testimonial-text">
+                        <p>「工作壓力讓我晚上常常暴飲暴食，健康檢查顯示我的血糖和膽固醇都超標。參加專業的健康計劃三個月後，我不只減重10公斤，更重要的是學會了如何在不用食物的情況下處理壓力。」</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="https://picsum.photos/51/50" alt="王小姐照片">
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">王小姐</div>
+                            <div class="author-title">38歲，專案經理</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 全新設計的CTA區域 -->
+    <section class="cta">
+        <div class="wave"></div>
+        
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        
+        <div class="container">
+            <div class="cta-top">
+                <div class="cta-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <h2 data-aos="fade-up">從今天開始，邁向健康生活</h2>
+                <p data-aos="fade-up" data-aos-delay="100">我們相信每個人都能建立健康的飲食習慣，重新找回對生活的熱愛與控制力。</p>
+            </div>
+            
+            <div class="cta-features">
+                <div class="cta-feature" data-aos="fade-up" data-aos-delay="150">
+                    <div class="cta-feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>心理情緒諮詢</h3>
+                    <p>專業心理師引導您探索情緒與飲食的關聯，建立健康的情緒宣洩管道，不再依賴食物來舒緩壓力與負面情緒。</p>
+                </div>
+                
+                <div class="cta-feature" data-aos="fade-up" data-aos-delay="200">
+                    <div class="cta-feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>個人營養方案</h3>
+                    <p>營養師為您量身定制平衡的飲食計劃，讓您在滿足味蕾的同時獲取均衡營養，遠離飢餓感引發的暴飲暴食。</p>
+                </div>
+                
+                <div class="cta-feature" data-aos="fade-up" data-aos-delay="250">
+                    <div class="cta-feature-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3>持續陪伴支持</h3>
+                    <p>我們的團隊將全程陪伴您，提供持續性的鼓勵與專業支持，幫助您克服每一個挑戰，直到健康飲食成為您的生活習慣。</p>
+                </div>
+            </div>
+            
+            <div class="cta-button-wrapper" data-aos="fade-up" data-aos-delay="300">
+                <a href="#contact" class="cta-button">
+                    <i class="fas fa-paper-plane"></i>免費諮詢預約
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 聯絡表單區域 -->
+    <section class="section" id="contact">
+        <div class="container">
+            <h2 data-aos="fade-up">聯絡<span class="highlight">我們</span></h2>
+            <p data-aos="fade-up" data-aos-delay="100">填寫以下表單，我們的專業團隊將在24小時內與您聯繫。</p>
+            
+            <form id="consultation-form" class="contact-form" data-aos="fade-up" data-aos-delay="150">
+                <div id="form-status" class="form-status"></div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="name">姓名 <span class="text-danger">*</span></label>
+                    <input type="text" id="name" name="name" required>
+                    <div class="error-message" id="name-error"></div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="email">電子郵件 <span class="text-danger">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                    <div class="error-message" id="email-error"></div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="phone">電話</label>
+                    <input type="tel" id="phone" name="phone">
+                    <div class="error-message" id="phone-error"></div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="message">您的問題或需求</label>
+                    <textarea id="message" name="message" rows="4"></textarea>
+                    <div class="error-message" id="message-error"></div>
+                </div>
+                
+                <button type="submit" id="submit-btn">提交表單</button>
+            </form>
+        </div>
+    </section>
+    
+    <!-- 頁腳區域 -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2023 健康生活計劃. 版權所有.</p>
+            <p>本網站提供的資訊僅供參考，不構成醫療建議。如有健康問題，請諮詢專業醫師。</p>
+        </div>
+    </footer>
+    
+    <!-- 底部常駐CTA -->
+    <div class="floating-cta">
+        <div class="floating-cta-inner">
+            <a href="https://line.me/ti/p/@065fjnjz" target="_blank" class="line-cta-btn" title="加我的LINE">
+                <i class="fab fa-line"></i>立即1對1免費諮詢
+            </a>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // 初始化AOS動畫庫
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease',
+                once: true
+            });
+            
+            // 健康風險比較圖
+            const healthRiskCtx = document.getElementById('healthRiskChart').getContext('2d');
+            const healthRiskChart = new Chart(healthRiskCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['心血管疾病', '高血壓', '第2型糖尿病', '脂肪肝', '睡眠呼吸中止症', '憂鬱症'],
+                    datasets: [{
+                        label: '暴飲暴食型肥胖者風險',
+                        data: [78, 65, 85, 70, 60, 55],
+                        backgroundColor: 'rgba(225, 29, 72, 0.85)',
+                        borderColor: 'rgba(225, 29, 72, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: '一般人群風險',
+                        data: [35, 25, 30, 20, 15, 25],
+                        backgroundColor: 'rgba(249, 115, 22, 0.6)',
+                        borderColor: 'rgba(249, 115, 22, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#111827',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '健康風險比較 (%)',
+                            color: '#111827',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#111827',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#111827',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 20,
+                            bottom: 20
+                        }
+                    },
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8
+                }
+            });
+            
+            // 平滑滾動
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // 警告燈效果
+            const pulseElements = document.querySelectorAll('.pulse');
+            pulseElements.forEach(el => {
+                setInterval(() => {
+                    el.style.animation = 'none';
+                    setTimeout(() => {
+                        el.style.animation = 'pulse-danger 2s infinite';
+                    }, 10);
+                }, 4000);
+            });
+
+            // 初始化Supabase客戶端
+            const supabaseUrl = 'https://vznhhyqkwdzlkvnbofij.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bmhoeXFrd2R6bGt2bmJvZmlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzY4MjgsImV4cCI6MjA2MDgxMjgyOH0.3LZ8Xgfkgwl5Qg2SZVjUdlC8Ts6kwk-diaKajhnZDa0';
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+            // 表單提交處理
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM已完全加載，準備設置表單處理');
+                const form = document.getElementById('consultation-form');
+                const submitBtn = document.getElementById('submit-btn');
+                const formStatus = document.getElementById('form-status');
+                
+                console.log('表單元素存在：', !!form);
+                console.log('提交按鈕存在：', !!submitBtn);
+                console.log('狀態顯示區域存在：', !!formStatus);
+                
+                if(form) {
+                    console.log('為表單添加提交事件監聽器');
+                    form.addEventListener('submit', async function(e) {
+                        console.log('表單提交事件已觸發');
+                        e.preventDefault();
+                        console.log('阻止了表單默認提交行為');
+                        
+                        // 顯示加載狀態
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '提交中...';
+                        formStatus.className = 'form-status info';
+                        formStatus.style.display = 'block'; // 確保狀態信息可見
+                        formStatus.textContent = '正在提交您的諮詢請求...';
+                        console.log('已更新按鈕和狀態顯示');
+                        
+                        // 獲取表單數據
+                        const formData = {
+                            name: document.getElementById('name').value,
+                            email: document.getElementById('email').value,
+                            phone: document.getElementById('phone').value,
+                            message: document.getElementById('message').value
+                        };
+                        
+                        console.log('表單數據準備提交：', formData);
+                        
+                        try {
+                            console.log('開始向Supabase提交數據');
+                            // 向Supabase提交數據
+                            const { data, error } = await supabaseClient
+                                .from('consultations')
+                                .insert([formData]);
+                            
+                            console.log('Supabase響應：', { data, error });
+                            
+                            if(error) {
+                                console.error('Supabase錯誤：', error);
+                                throw error;
+                            }
+                            
+                            // 成功提交
+                            console.log('數據成功提交到Supabase');
+                            formStatus.className = 'form-status success';
+                            formStatus.textContent = '感謝您的諮詢請求！我們的專業團隊將在24小時內與您聯繫。';
+                            form.reset();
+                        } catch(error) {
+                            console.error('提交表單時發生錯誤:', error);
+                            formStatus.className = 'form-status error';
+                            formStatus.textContent = '提交失敗，請稍後再試或直接聯繫我們。錯誤: ' + error.message;
+                        } finally {
+                            console.log('表單提交處理完成');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '提交表單';
+                        }
+                    });
+                } else {
+                    console.error('找不到表單元素!');
+                }
+            });
+        });
+        
+        // 滾動到聯絡表單
+        function scrollToContact() {
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+    
+    <!-- 添加直接調試腳本 -->
+    <script>
+        // 立即執行的調試代碼
+        console.log('頁面腳本直接執行 - 調試開始');
+        
+        // 檢查Supabase客戶端是否存在
+        console.log('Supabase客戶端存在:', typeof supabase !== 'undefined');
+        
+        // 檢查表單元素
+        const debugForm = document.getElementById('consultation-form');
+        console.log('表單元素在直接腳本中存在:', !!debugForm);
+        
+        // 表單驗證函數
+        function validateForm() {
+            let isValid = true;
+            
+            // 重置所有錯誤信息
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('visible');
+            });
+            
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('error');
+            });
+            
+            // 驗證姓名
+            const nameInput = document.getElementById('name');
+            if (!nameInput.value.trim()) {
+                document.getElementById('name-error').textContent = '請輸入您的姓名';
+                document.getElementById('name-error').classList.add('visible');
+                nameInput.classList.add('error');
+                isValid = false;
+            } else if (/\d/.test(nameInput.value)) {
+                document.getElementById('name-error').textContent = '姓名不能包含數字';
+                document.getElementById('name-error').classList.add('visible');
+                nameInput.classList.add('error');
+                isValid = false;
+            }
+            
+            // 驗證電子郵件
+            const emailInput = document.getElementById('email');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailInput.value.trim()) {
+                document.getElementById('email-error').textContent = '請輸入您的電子郵件';
+                document.getElementById('email-error').classList.add('visible');
+                emailInput.classList.add('error');
+                isValid = false;
+            } else if (!emailPattern.test(emailInput.value.trim())) {
+                document.getElementById('email-error').textContent = '請輸入有效的電子郵件地址';
+                document.getElementById('email-error').classList.add('visible');
+                emailInput.classList.add('error');
+                isValid = false;
+            }
+            
+            // 驗證電話號碼（如果已填寫）
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput.value.trim() && !/^09\d{8}$/.test(phoneInput.value)) {
+                document.getElementById('phone-error').textContent = '請輸入有效的台灣手機號碼（例如：0912345678）';
+                document.getElementById('phone-error').classList.add('visible');
+                phoneInput.classList.add('error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // 顯示成功消息函數
+        function showSuccessMessage(form) {
+            // 隱藏表單
+            form.style.display = 'none';
+            
+            // 創建成功消息元素
+            const successDiv = document.createElement('div');
+            successDiv.className = 'form-submit-success';
+            successDiv.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <h3>感謝您的諮詢請求！</h3>
+                <p>我們已收到您的訊息，專業團隊將在24小時內與您聯繫。</p>
+                <button id="send-another" style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer;">發送另一個請求</button>
+            `;
+            
+            // 插入成功消息
+            form.parentNode.insertBefore(successDiv, form.nextSibling);
+            
+            // 顯示成功消息
+            setTimeout(() => {
+                successDiv.style.display = 'block';
+            }, 100);
+            
+            // 添加"發送另一個請求"按鈕的事件監聽器
+            document.getElementById('send-another').addEventListener('click', function() {
+                // 重置表單
+                form.reset();
+                
+                // 清除狀態消息
+                const formStatus = document.getElementById('form-status');
+                formStatus.className = 'form-status';
+                formStatus.textContent = '';
+                formStatus.style.display = 'none';
+                
+                // 顯示表單，隱藏成功消息
+                form.style.display = 'block';
+                successDiv.remove();
+            });
+        }
+        
+        if(debugForm) {
+            // 直接添加事件處理器
+            console.log('從直接腳本添加表單提交事件處理器');
+            
+            // 為姓名欄位添加鍵盤事件，防止輸入數字
+            const nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.addEventListener('keypress', function(e) {
+                    // 檢查按鍵是否為數字
+                    if (e.key >= '0' && e.key <= '9') {
+                        // 阻止數字輸入
+                        e.preventDefault();
+                        // 顯示錯誤消息
+                        document.getElementById('name-error').textContent = '姓名不能包含數字';
+                        document.getElementById('name-error').classList.add('visible');
+                    }
+                });
+                
+                // 處理貼上事件，防止貼上包含數字的內容
+                nameInput.addEventListener('paste', function(e) {
+                    // 延遲執行以獲取貼上後的值
+                    setTimeout(() => {
+                        if (/\d/.test(nameInput.value)) {
+                            // 去除所有數字
+                            nameInput.value = nameInput.value.replace(/\d/g, '');
+                            document.getElementById('name-error').textContent = '姓名不能包含數字，已自動移除數字';
+                            document.getElementById('name-error').classList.add('visible');
+                        }
+                    }, 0);
+                });
+                
+                // 離開欄位時檢查
+                nameInput.addEventListener('blur', function() {
+                    if (nameInput.required && !nameInput.value.trim()) {
+                        document.getElementById('name-error').textContent = '請輸入您的姓名';
+                        document.getElementById('name-error').classList.add('visible');
+                        nameInput.classList.add('error');
+                    } else if (/\d/.test(nameInput.value)) {
+                        document.getElementById('name-error').textContent = '姓名不能包含數字';
+                        document.getElementById('name-error').classList.add('visible');
+                        nameInput.classList.add('error');
+                    }
+                });
+            }
+            
+            // 為電話欄位添加事件，限制輸入台灣手機號碼格式
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) {
+                // 限制只能輸入數字
+                phoneInput.addEventListener('keypress', function(e) {
+                    // 只允許數字
+                    if (!/\d/.test(e.key)) {
+                        e.preventDefault();
+                        document.getElementById('phone-error').textContent = '請只輸入數字';
+                        document.getElementById('phone-error').classList.add('visible');
+                    }
+                });
+                
+                // 處理貼上事件
+                phoneInput.addEventListener('paste', function(e) {
+                    setTimeout(() => {
+                        // 清除非數字字符
+                        const cleanedValue = phoneInput.value.replace(/\D/g, '');
+                        if (cleanedValue !== phoneInput.value) {
+                            phoneInput.value = cleanedValue;
+                            document.getElementById('phone-error').textContent = '已移除非數字字符，請使用純數字格式';
+                            document.getElementById('phone-error').classList.add('visible');
+                        }
+                        
+                        // 檢查是否符合台灣手機號碼格式
+                        if (cleanedValue && !cleanedValue.startsWith('09')) {
+                            document.getElementById('phone-error').textContent = '台灣手機號碼應以09開頭';
+                            document.getElementById('phone-error').classList.add('visible');
+                        } else if (cleanedValue && cleanedValue.length !== 10) {
+                            document.getElementById('phone-error').textContent = '台灣手機號碼應為10位數字';
+                            document.getElementById('phone-error').classList.add('visible');
+                        }
+                    }, 0);
+                });
+                
+                // 離開欄位時驗證電話號碼格式
+                phoneInput.addEventListener('blur', function() {
+                    if (phoneInput.value.trim()) {
+                        // 移除所有非數字字符
+                        const digitsOnly = phoneInput.value.replace(/\D/g, '');
+                        phoneInput.value = digitsOnly; // 設置為純數字格式
+                        
+                        // 檢查是否符合台灣手機號碼格式（09開頭，共10位數字）
+                        if (!/^09\d{8}$/.test(digitsOnly)) {
+                            document.getElementById('phone-error').textContent = '請輸入有效的台灣手機號碼（例如：0912345678）';
+                            document.getElementById('phone-error').classList.add('visible');
+                            phoneInput.classList.add('error');
+                        }
+                    }
+                });
+            }
+            
+            // 為電子郵件欄位添加事件
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('blur', function() {
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (emailInput.required && !emailInput.value.trim()) {
+                        document.getElementById('email-error').textContent = '請輸入您的電子郵件';
+                        document.getElementById('email-error').classList.add('visible');
+                        emailInput.classList.add('error');
+                    } else if (emailInput.value.trim() && !emailPattern.test(emailInput.value.trim())) {
+                        document.getElementById('email-error').textContent = '請輸入有效的電子郵件地址';
+                        document.getElementById('email-error').classList.add('visible');
+                        emailInput.classList.add('error');
+                    }
+                });
+                
+                // 當用戶開始輸入時清除錯誤狀態
+                emailInput.addEventListener('input', function() {
+                    const errorElement = document.getElementById('email-error');
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.classList.remove('visible');
+                    }
+                    emailInput.classList.remove('error');
+                });
+            }
+            
+            // 表單提交處理
+            debugForm.onsubmit = async function(e) {
+                console.log('表單提交事件從直接腳本觸發');
+                e.preventDefault();
+                
+                // 驗證表單
+                if (!validateForm()) {
+                    console.log('表單驗證失敗');
+                    return false;
+                }
+                
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value, // 直接使用純數字格式
+                    message: document.getElementById('message').value
+                };
+                
+                console.log('表單數據從直接腳本:', formData);
+                
+                const submitBtn = document.getElementById('submit-btn');
+                const formStatus = document.getElementById('form-status');
+                
+                // 顯示加載狀態
+                if(submitBtn && formStatus) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('loading', 'spinner');
+                    submitBtn.innerHTML = '提交中...';
+                    formStatus.className = 'form-status info';
+                    formStatus.style.display = 'block';
+                    formStatus.textContent = '正在提交您的諮詢請求...';
+                }
+                
+                // 嘗試提交到Supabase
+                if(typeof supabase !== 'undefined' && supabase.createClient) {
+                    try {
+                        const supabaseUrl = 'https://vznhhyqkwdzlkvnbofij.supabase.co';
+                        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bmhoeXFrd2R6bGt2bmJvZmlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzY4MjgsImV4cCI6MjA2MDgxMjgyOH0.3LZ8Xgfkgwl5Qg2SZVjUdlC8Ts6kwk-diaKajhnZDa0';
+                        const client = supabase.createClient(supabaseUrl, supabaseKey);
+                        
+                        console.log('直接腳本創建的Supabase客戶端:', !!client);
+                        console.log('開始向Supabase提交數據');
+                        
+                        const { data, error } = await client
+                            .from('consultations')
+                            .insert([formData]);
+                        
+                        console.log('Supabase響應:', { data, error });
+                        
+                        if(error) {
+                            throw error;
+                        }
+                        
+                        // 成功提交
+                        console.log('數據成功提交到Supabase');
+                        
+                        // 清空表單並顯示成功消息
+                        debugForm.reset();
+                        
+                        // 顯示成功消息
+                        showSuccessMessage(debugForm);
+                    } catch(error) {
+                        console.error('從直接腳本提交表單時發生錯誤:', error);
+                        
+                        // 針對不同錯誤顯示不同的錯誤消息
+                        let errorMessage = '提交失敗，請稍後再試或直接聯繫我們。';
+                        
+                        if (error.code === '42501') {
+                            errorMessage = '權限錯誤：無法將數據提交到數據庫。請聯繫網站管理員。';
+                        } else if (error.code === '23505') {
+                            errorMessage = '這個郵箱地址已經提交過諮詢請求。';
+                        } else if (error.message && error.message.includes('network')) {
+                            errorMessage = '網絡錯誤：請檢查您的互聯網連接並重試。';
+                        }
+                        
+                        if(formStatus) {
+                            formStatus.className = 'form-status error';
+                            formStatus.textContent = errorMessage + (error.message ? ' 錯誤詳情: ' + error.message : '');
+                        }
+                    } finally {
+                        if(submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('loading', 'spinner');
+                            submitBtn.innerHTML = '提交表單';
+                        }
+                    }
+                } else {
+                    console.error('Supabase客戶端不可用');
+                    if(formStatus) {
+                        formStatus.className = 'form-status error';
+                        formStatus.textContent = '提交失敗：無法連接到數據庫服務。請稍後再試。';
+                    }
+                    if(submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading', 'spinner');
+                        submitBtn.innerHTML = '提交表單';
+                    }
+                }
+                
+                return false;
+            };
+            
+            // 為輸入框添加實時驗證
+            const inputs = debugForm.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (input.id === 'name' && input.required && !input.value.trim()) {
+                        document.getElementById('name-error').textContent = '請輸入您的姓名';
+                        document.getElementById('name-error').classList.add('visible');
+                        input.classList.add('error');
+                    } else if (input.id === 'email') {
+                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (input.required && !input.value.trim()) {
+                            document.getElementById('email-error').textContent = '請輸入您的電子郵件';
+                            document.getElementById('email-error').classList.add('visible');
+                            input.classList.add('error');
+                        } else if (input.value.trim() && !emailPattern.test(input.value.trim())) {
+                            document.getElementById('email-error').textContent = '請輸入有效的電子郵件地址';
+                            document.getElementById('email-error').classList.add('visible');
+                            input.classList.add('error');
+                        }
+                    } else if (input.id === 'phone') {
+                        // 限制只能輸入數字
+                        input.addEventListener('keypress', function(e) {
+                            // 只允許數字
+                            if (!/\d/.test(e.key)) {
+                                e.preventDefault();
+                                document.getElementById('phone-error').textContent = '請只輸入數字';
+                                document.getElementById('phone-error').classList.add('visible');
+                            }
+                        });
+                        
+                        // 處理貼上事件
+                        input.addEventListener('paste', function(e) {
+                            setTimeout(() => {
+                                // 清除非數字字符
+                                const cleanedValue = input.value.replace(/\D/g, '');
+                                if (cleanedValue !== input.value) {
+                                    input.value = cleanedValue;
+                                    document.getElementById('phone-error').textContent = '已移除非數字字符，請使用純數字格式';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                }
+                                
+                                // 檢查是否符合台灣手機號碼格式
+                                if (cleanedValue && !cleanedValue.startsWith('09')) {
+                                    document.getElementById('phone-error').textContent = '台灣手機號碼應以09開頭';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                } else if (cleanedValue && cleanedValue.length !== 10) {
+                                    document.getElementById('phone-error').textContent = '台灣手機號碼應為10位數字';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                }
+                            }, 0);
+                        });
+                        
+                        // 離開欄位時驗證電話號碼格式
+                        input.addEventListener('blur', function() {
+                            if (input.value.trim()) {
+                                // 移除所有非數字字符
+                                const digitsOnly = input.value.replace(/\D/g, '');
+                                input.value = digitsOnly; // 設置為純數字格式
+                                
+                                // 檢查是否符合台灣手機號碼格式（09開頭，共10位數字）
+                                if (!/^09\d{8}$/.test(digitsOnly)) {
+                                    document.getElementById('phone-error').textContent = '請輸入有效的台灣手機號碼（例如：0912345678）';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                    input.classList.add('error');
+                                }
+                            }
+                        });
+                    } else if (input.id === 'message' && input.required && !input.value.trim()) {
+                        document.getElementById('message-error').textContent = '請輸入您的問題或需求';
+                        document.getElementById('message-error').classList.add('visible');
+                        input.classList.add('error');
+                    }
+                });
+                
+                // 當用戶開始輸入時清除錯誤狀態
+                input.addEventListener('input', function() {
+                    const errorElement = document.getElementById(`${input.id}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.classList.remove('visible');
+                    }
+                    input.classList.remove('error');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
