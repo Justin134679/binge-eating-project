@@ -99,11 +99,10 @@
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bmhoeXFrd2R6bGt2bmJvZmlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzY4MjgsImV4cCI6MjA2MDgxMjgyOH0.3LZ8Xgfkgwl5Qg2SZVjUdlC8Ts6kwk-diaKajhnZDa0';
             const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-            // 檢測環境和設置返回連結
-            const isGitHubPages = window.location.hostname.includes('github.io');
+            // 不再需要檢測環境，直接設置返回連結
             const backLink = document.getElementById('back-link');
             if (backLink) {
-                backLink.href = isGitHubPages ? '/binge-eating-project/' : '/';
+                backLink.href = '/';
             }
 
             // 表單提交處理
