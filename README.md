@@ -1,4 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 暴飲暴食警訊 | 健康危機解析
+
+這是一個關於暴飲暴食健康問題的宣導網站，旨在提高人們對這一問題的認識和關注。
+
+## 功能特點
+
+- 提供暴飲暴食的症狀和特徵分析
+- 展示健康風險數據（使用 Chart.js 視覺化）
+- 提供解決方案建議和參考案例
+- 包含諮詢表單（連接到 Supabase 數據庫）
+
+## 技術堆棧
+
+- Next.js 15.3.1
+- React 19
+- Chart.js
+- Supabase
+- AOS 動畫庫
+
+## 開發與部署
+
+- 使用 `npm run dev` 啟動開發服務器
+- 使用 GitHub Actions 自動部署到 GitHub Pages
+
+網站訪問地址: [https://justin134679.github.io/binge-eating-project/](https://justin134679.github.io/binge-eating-project/)
 
 ## Getting Started
 
