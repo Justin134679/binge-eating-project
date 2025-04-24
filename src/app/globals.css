@@ -1,4 +1,18 @@
+/* 全域變量定義 */
 :root {
+  --danger: #e11d48;
+  --danger-light: #fb7185;
+  --danger-dark: #be123c;
+  --warning: #f97316;
+  --warning-light: #fdba74;
+  --warning-dark: #c2410c;
+  --dark: #27272a;
+  --dark-light: #52525b;
+  --gray: #71717a;
+  --light: #ffffff;
+  --light-gray: #f4f4f5;
+  --bg-light: #fafafa;
+  --border-light: #e4e4e7;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -19,9 +33,10 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Noto Sans TC', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
 * {
@@ -38,5 +53,43 @@ a {
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
+  }
+}
+
+h1, h2, h3, h4 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+h1 {
+  font-size: 3.5rem;
+  font-weight: 900;
+}
+
+h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  color: #1f2937;
+  font-weight: 450;
+}
+
+@keyframes pulse-light {
+  0% {
+    box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    box-shadow: 0 15px 30px rgba(249, 115, 22, 0.5);
+  }
+  100% {
+    box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
   }
 }
