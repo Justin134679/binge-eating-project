@@ -5,8 +5,20 @@ on:
     branches: [ main, master ] # 當推送到 main 或 master 分支時觸發
   workflow_dispatch: # 允許手動觸發
 
+# 設置 GITHUB_TOKEN 的權限
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# 允許一個並發部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build-and-deploy:
+  # 構建 job
+  build:
     runs-on: ubuntu-latest
     
     steps:
@@ -36,9 +48,20 @@ jobs:
       
       - name: Add .nojekyll file 📄
         run: touch out/.nojekyll # 防止 GitHub Pages 使用 Jekyll 處理
-      
-      - name: Deploy to GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          folder: out # 部署 out 目錄中的靜態文件
-          branch: gh-pages # 部署到 gh-pages 分支 
+          path: out
+  
+  # 部署 job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v3 
