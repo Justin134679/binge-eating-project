@@ -1024,12 +1024,13 @@
             stroke: var(--warning-dark);
         }
         
-        /* 表單狀態樣式 */
+        /* 表單狀態樣式優化 */
         .form-status {
             padding: 1rem;
             margin-bottom: 1.5rem;
             border-radius: 5px;
             display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
         
         .form-status.info {
@@ -1051,6 +1052,176 @@
             background-color: #ffebee;
             color: #b71c1c;
             border: 1px solid #ffcdd2;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
+        .contact-form input.error, 
+        .contact-form textarea.error {
+            border-color: var(--danger);
+            background-color: rgba(225, 29, 72, 0.05);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-submit-success {
+            text-align: center;
+            padding: 2rem;
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border: 1px solid #c8e6c9;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .form-submit-success i {
+            font-size: 3rem;
+            color: #4caf50;
+            margin-bottom: 1rem;
+        }
+        
+        .form-submit-success h3 {
+            color: #1b5e20;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 提交按鈕加載動畫 */
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+        
+        .spinner:before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            animation: spinner 0.8s linear infinite;
+        }
+        
+        .submit-btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .loading {
+            color: transparent !important;
+            position: relative;
+        }
+        
+        /* 底部常駐CTA樣式 */
+        .floating-cta {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 0 20px;
+        }
+        
+        .floating-cta-inner {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(6, 199, 85, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-cta-inner:hover {
+            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .line-cta-btn {
+            background: linear-gradient(135deg, #06C755, #04A346);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3);
+            text-decoration: none;
+        }
+        
+        .line-cta-btn i {
+            margin-right: 10px;
+            font-size: 28px; /* 增大圖標尺寸 */
+        }
+        
+        .line-cta-btn:hover {
+            background: linear-gradient(135deg, #04A346, #06C755);
+            box-shadow: 0 6px 15px rgba(6, 199, 85, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* 在小屏幕上調整CTA樣式 */
+        @media (max-width: 768px) {
+            .floating-cta {
+                bottom: 15px;
+                padding: 0 10px;
+            }
+            
+            .floating-cta-inner {
+                width: 100%;
+                padding: 8px 15px;
+                justify-content: center;
+            }
+            
+            .line-cta-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .line-cta-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            .line-cta-btn i {
+                font-size: 24px; /* 在小屏幕上也保持較大尺寸 */
+            }
         }
     </style>
 </head>
@@ -1341,27 +1512,31 @@
             <p data-aos="fade-up" data-aos-delay="100">填寫以下表單，我們的專業團隊將在24小時內與您聯繫。</p>
             
             <form id="consultation-form" class="contact-form" data-aos="fade-up" data-aos-delay="150">
+                <div id="form-status" class="form-status"></div>
+                
                 <div style="margin-bottom: 1.5rem;">
-                    <label for="name">姓名</label>
+                    <label for="name">姓名 <span class="text-danger">*</span></label>
                     <input type="text" id="name" name="name" required>
+                    <div class="error-message" id="name-error"></div>
                 </div>
                 
                 <div style="margin-bottom: 1.5rem;">
-                    <label for="email">電子郵件</label>
+                    <label for="email">電子郵件 <span class="text-danger">*</span></label>
                     <input type="email" id="email" name="email" required>
+                    <div class="error-message" id="email-error"></div>
                 </div>
                 
                 <div style="margin-bottom: 1.5rem;">
                     <label for="phone">電話</label>
                     <input type="tel" id="phone" name="phone">
+                    <div class="error-message" id="phone-error"></div>
                 </div>
                 
                 <div style="margin-bottom: 1.5rem;">
                     <label for="message">您的問題或需求</label>
                     <textarea id="message" name="message" rows="4"></textarea>
+                    <div class="error-message" id="message-error"></div>
                 </div>
-                
-                <div id="form-status" class="form-status"></div>
                 
                 <button type="submit" id="submit-btn">提交表單</button>
             </form>
@@ -1375,6 +1550,15 @@
             <p>本網站提供的資訊僅供參考，不構成醫療建議。如有健康問題，請諮詢專業醫師。</p>
         </div>
     </footer>
+    
+    <!-- 底部常駐CTA -->
+    <div class="floating-cta">
+        <div class="floating-cta-inner">
+            <a href="https://line.me/ti/p/@065fjnjz" target="_blank" class="line-cta-btn" title="加我的LINE">
+                <i class="fab fa-line"></i>立即1對1免費諮詢
+            </a>
+        </div>
+    </div>
     
     <!-- JavaScript -->
     <script>
@@ -1498,53 +1682,502 @@
 
             // 表單提交處理
             document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM已完全加載，準備設置表單處理');
                 const form = document.getElementById('consultation-form');
                 const submitBtn = document.getElementById('submit-btn');
                 const formStatus = document.getElementById('form-status');
                 
+                console.log('表單元素存在：', !!form);
+                console.log('提交按鈕存在：', !!submitBtn);
+                console.log('狀態顯示區域存在：', !!formStatus);
+                
                 if(form) {
+                    console.log('為表單添加提交事件監聽器');
                     form.addEventListener('submit', async function(e) {
+                        console.log('表單提交事件已觸發');
                         e.preventDefault();
+                        console.log('阻止了表單默認提交行為');
                         
                         // 顯示加載狀態
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = '提交中...';
                         formStatus.className = 'form-status info';
+                        formStatus.style.display = 'block'; // 確保狀態信息可見
                         formStatus.textContent = '正在提交您的諮詢請求...';
+                        console.log('已更新按鈕和狀態顯示');
                         
                         // 獲取表單數據
                         const formData = {
                             name: document.getElementById('name').value,
                             email: document.getElementById('email').value,
                             phone: document.getElementById('phone').value,
-                            message: document.getElementById('message').value,
-                            status: 'new'
+                            message: document.getElementById('message').value
                         };
                         
+                        console.log('表單數據準備提交：', formData);
+                        
                         try {
+                            console.log('開始向Supabase提交數據');
                             // 向Supabase提交數據
                             const { data, error } = await supabaseClient
                                 .from('consultations')
                                 .insert([formData]);
                             
-                            if(error) throw error;
+                            console.log('Supabase響應：', { data, error });
+                            
+                            if(error) {
+                                console.error('Supabase錯誤：', error);
+                                throw error;
+                            }
                             
                             // 成功提交
+                            console.log('數據成功提交到Supabase');
                             formStatus.className = 'form-status success';
                             formStatus.textContent = '感謝您的諮詢請求！我們的專業團隊將在24小時內與您聯繫。';
                             form.reset();
                         } catch(error) {
-                            console.error('Error submitting form:', error);
+                            console.error('提交表單時發生錯誤:', error);
                             formStatus.className = 'form-status error';
                             formStatus.textContent = '提交失敗，請稍後再試或直接聯繫我們。錯誤: ' + error.message;
                         } finally {
+                            console.log('表單提交處理完成');
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = '提交表單';
                         }
                     });
+                } else {
+                    console.error('找不到表單元素!');
                 }
             });
         });
+        
+        // 滾動到聯絡表單
+        function scrollToContact() {
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+    
+    <!-- 添加直接調試腳本 -->
+    <script>
+        // 立即執行的調試代碼
+        console.log('頁面腳本直接執行 - 調試開始');
+        
+        // 檢查Supabase客戶端是否存在
+        console.log('Supabase客戶端存在:', typeof supabase !== 'undefined');
+        
+        // 檢查表單元素
+        const debugForm = document.getElementById('consultation-form');
+        console.log('表單元素在直接腳本中存在:', !!debugForm);
+        
+        // 表單驗證函數
+        function validateForm() {
+            let isValid = true;
+            
+            // 重置所有錯誤信息
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('visible');
+            });
+            
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('error');
+            });
+            
+            // 驗證姓名
+            const nameInput = document.getElementById('name');
+            if (!nameInput.value.trim()) {
+                document.getElementById('name-error').textContent = '請輸入您的姓名';
+                document.getElementById('name-error').classList.add('visible');
+                nameInput.classList.add('error');
+                isValid = false;
+            } else if (/\d/.test(nameInput.value)) {
+                document.getElementById('name-error').textContent = '姓名不能包含數字';
+                document.getElementById('name-error').classList.add('visible');
+                nameInput.classList.add('error');
+                isValid = false;
+            }
+            
+            // 驗證電子郵件
+            const emailInput = document.getElementById('email');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailInput.value.trim()) {
+                document.getElementById('email-error').textContent = '請輸入您的電子郵件';
+                document.getElementById('email-error').classList.add('visible');
+                emailInput.classList.add('error');
+                isValid = false;
+            } else if (!emailPattern.test(emailInput.value.trim())) {
+                document.getElementById('email-error').textContent = '請輸入有效的電子郵件地址';
+                document.getElementById('email-error').classList.add('visible');
+                emailInput.classList.add('error');
+                isValid = false;
+            }
+            
+            // 驗證電話號碼（如果已填寫）
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput.value.trim() && !/^09\d{8}$/.test(phoneInput.value)) {
+                document.getElementById('phone-error').textContent = '請輸入有效的台灣手機號碼（例如：0912345678）';
+                document.getElementById('phone-error').classList.add('visible');
+                phoneInput.classList.add('error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // 顯示成功消息函數
+        function showSuccessMessage(form) {
+            // 隱藏表單
+            form.style.display = 'none';
+            
+            // 創建成功消息元素
+            const successDiv = document.createElement('div');
+            successDiv.className = 'form-submit-success';
+            successDiv.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <h3>感謝您的諮詢請求！</h3>
+                <p>我們已收到您的訊息，專業團隊將在24小時內與您聯繫。</p>
+                <button id="send-another" style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer;">發送另一個請求</button>
+            `;
+            
+            // 插入成功消息
+            form.parentNode.insertBefore(successDiv, form.nextSibling);
+            
+            // 顯示成功消息
+            setTimeout(() => {
+                successDiv.style.display = 'block';
+            }, 100);
+            
+            // 添加"發送另一個請求"按鈕的事件監聽器
+            document.getElementById('send-another').addEventListener('click', function() {
+                // 重置表單
+                form.reset();
+                
+                // 清除狀態消息
+                const formStatus = document.getElementById('form-status');
+                formStatus.className = 'form-status';
+                formStatus.textContent = '';
+                formStatus.style.display = 'none';
+                
+                // 顯示表單，隱藏成功消息
+                form.style.display = 'block';
+                successDiv.remove();
+            });
+        }
+        
+        if(debugForm) {
+            // 直接添加事件處理器
+            console.log('從直接腳本添加表單提交事件處理器');
+            
+            // 為姓名欄位添加鍵盤事件，防止輸入數字
+            const nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.addEventListener('keypress', function(e) {
+                    // 檢查按鍵是否為數字
+                    if (e.key >= '0' && e.key <= '9') {
+                        // 阻止數字輸入
+                        e.preventDefault();
+                        // 顯示錯誤消息
+                        document.getElementById('name-error').textContent = '姓名不能包含數字';
+                        document.getElementById('name-error').classList.add('visible');
+                    }
+                });
+                
+                // 處理貼上事件，防止貼上包含數字的內容
+                nameInput.addEventListener('paste', function(e) {
+                    // 延遲執行以獲取貼上後的值
+                    setTimeout(() => {
+                        if (/\d/.test(nameInput.value)) {
+                            // 去除所有數字
+                            nameInput.value = nameInput.value.replace(/\d/g, '');
+                            document.getElementById('name-error').textContent = '姓名不能包含數字，已自動移除數字';
+                            document.getElementById('name-error').classList.add('visible');
+                        }
+                    }, 0);
+                });
+                
+                // 離開欄位時檢查
+                nameInput.addEventListener('blur', function() {
+                    if (nameInput.required && !nameInput.value.trim()) {
+                        document.getElementById('name-error').textContent = '請輸入您的姓名';
+                        document.getElementById('name-error').classList.add('visible');
+                        nameInput.classList.add('error');
+                    } else if (/\d/.test(nameInput.value)) {
+                        document.getElementById('name-error').textContent = '姓名不能包含數字';
+                        document.getElementById('name-error').classList.add('visible');
+                        nameInput.classList.add('error');
+                    }
+                });
+            }
+            
+            // 為電話欄位添加事件，限制輸入台灣手機號碼格式
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) {
+                // 限制只能輸入數字
+                phoneInput.addEventListener('keypress', function(e) {
+                    // 只允許數字
+                    if (!/\d/.test(e.key)) {
+                        e.preventDefault();
+                        document.getElementById('phone-error').textContent = '請只輸入數字';
+                        document.getElementById('phone-error').classList.add('visible');
+                    }
+                });
+                
+                // 處理貼上事件
+                phoneInput.addEventListener('paste', function(e) {
+                    setTimeout(() => {
+                        // 清除非數字字符
+                        const cleanedValue = phoneInput.value.replace(/\D/g, '');
+                        if (cleanedValue !== phoneInput.value) {
+                            phoneInput.value = cleanedValue;
+                            document.getElementById('phone-error').textContent = '已移除非數字字符，請使用純數字格式';
+                            document.getElementById('phone-error').classList.add('visible');
+                        }
+                        
+                        // 檢查是否符合台灣手機號碼格式
+                        if (cleanedValue && !cleanedValue.startsWith('09')) {
+                            document.getElementById('phone-error').textContent = '台灣手機號碼應以09開頭';
+                            document.getElementById('phone-error').classList.add('visible');
+                        } else if (cleanedValue && cleanedValue.length !== 10) {
+                            document.getElementById('phone-error').textContent = '台灣手機號碼應為10位數字';
+                            document.getElementById('phone-error').classList.add('visible');
+                        }
+                    }, 0);
+                });
+                
+                // 離開欄位時驗證電話號碼格式
+                phoneInput.addEventListener('blur', function() {
+                    if (phoneInput.value.trim()) {
+                        // 移除所有非數字字符
+                        const digitsOnly = phoneInput.value.replace(/\D/g, '');
+                        phoneInput.value = digitsOnly; // 設置為純數字格式
+                        
+                        // 檢查是否符合台灣手機號碼格式（09開頭，共10位數字）
+                        if (!/^09\d{8}$/.test(digitsOnly)) {
+                            document.getElementById('phone-error').textContent = '請輸入有效的台灣手機號碼（例如：0912345678）';
+                            document.getElementById('phone-error').classList.add('visible');
+                            phoneInput.classList.add('error');
+                        }
+                    }
+                });
+            }
+            
+            // 為電子郵件欄位添加事件
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('blur', function() {
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (emailInput.required && !emailInput.value.trim()) {
+                        document.getElementById('email-error').textContent = '請輸入您的電子郵件';
+                        document.getElementById('email-error').classList.add('visible');
+                        emailInput.classList.add('error');
+                    } else if (emailInput.value.trim() && !emailPattern.test(emailInput.value.trim())) {
+                        document.getElementById('email-error').textContent = '請輸入有效的電子郵件地址';
+                        document.getElementById('email-error').classList.add('visible');
+                        emailInput.classList.add('error');
+                    }
+                });
+                
+                // 當用戶開始輸入時清除錯誤狀態
+                emailInput.addEventListener('input', function() {
+                    const errorElement = document.getElementById('email-error');
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.classList.remove('visible');
+                    }
+                    emailInput.classList.remove('error');
+                });
+            }
+            
+            // 表單提交處理
+            debugForm.onsubmit = async function(e) {
+                console.log('表單提交事件從直接腳本觸發');
+                e.preventDefault();
+                
+                // 驗證表單
+                if (!validateForm()) {
+                    console.log('表單驗證失敗');
+                    return false;
+                }
+                
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value, // 直接使用純數字格式
+                    message: document.getElementById('message').value
+                };
+                
+                console.log('表單數據從直接腳本:', formData);
+                
+                const submitBtn = document.getElementById('submit-btn');
+                const formStatus = document.getElementById('form-status');
+                
+                // 顯示加載狀態
+                if(submitBtn && formStatus) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('loading', 'spinner');
+                    submitBtn.innerHTML = '提交中...';
+                    formStatus.className = 'form-status info';
+                    formStatus.style.display = 'block';
+                    formStatus.textContent = '正在提交您的諮詢請求...';
+                }
+                
+                // 嘗試提交到Supabase
+                if(typeof supabase !== 'undefined' && supabase.createClient) {
+                    try {
+                        const supabaseUrl = 'https://vznhhyqkwdzlkvnbofij.supabase.co';
+                        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bmhoeXFrd2R6bGt2bmJvZmlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzY4MjgsImV4cCI6MjA2MDgxMjgyOH0.3LZ8Xgfkgwl5Qg2SZVjUdlC8Ts6kwk-diaKajhnZDa0';
+                        const client = supabase.createClient(supabaseUrl, supabaseKey);
+                        
+                        console.log('直接腳本創建的Supabase客戶端:', !!client);
+                        console.log('開始向Supabase提交數據');
+                        
+                        const { data, error } = await client
+                            .from('consultations')
+                            .insert([formData]);
+                        
+                        console.log('Supabase響應:', { data, error });
+                        
+                        if(error) {
+                            throw error;
+                        }
+                        
+                        // 成功提交
+                        console.log('數據成功提交到Supabase');
+                        
+                        // 清空表單並顯示成功消息
+                        debugForm.reset();
+                        
+                        // 顯示成功消息
+                        showSuccessMessage(debugForm);
+                    } catch(error) {
+                        console.error('從直接腳本提交表單時發生錯誤:', error);
+                        
+                        // 針對不同錯誤顯示不同的錯誤消息
+                        let errorMessage = '提交失敗，請稍後再試或直接聯繫我們。';
+                        
+                        if (error.code === '42501') {
+                            errorMessage = '權限錯誤：無法將數據提交到數據庫。請聯繫網站管理員。';
+                        } else if (error.code === '23505') {
+                            errorMessage = '這個郵箱地址已經提交過諮詢請求。';
+                        } else if (error.message && error.message.includes('network')) {
+                            errorMessage = '網絡錯誤：請檢查您的互聯網連接並重試。';
+                        }
+                        
+                        if(formStatus) {
+                            formStatus.className = 'form-status error';
+                            formStatus.textContent = errorMessage + (error.message ? ' 錯誤詳情: ' + error.message : '');
+                        }
+                    } finally {
+                        if(submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('loading', 'spinner');
+                            submitBtn.innerHTML = '提交表單';
+                        }
+                    }
+                } else {
+                    console.error('Supabase客戶端不可用');
+                    if(formStatus) {
+                        formStatus.className = 'form-status error';
+                        formStatus.textContent = '提交失敗：無法連接到數據庫服務。請稍後再試。';
+                    }
+                    if(submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading', 'spinner');
+                        submitBtn.innerHTML = '提交表單';
+                    }
+                }
+                
+                return false;
+            };
+            
+            // 為輸入框添加實時驗證
+            const inputs = debugForm.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (input.id === 'name' && input.required && !input.value.trim()) {
+                        document.getElementById('name-error').textContent = '請輸入您的姓名';
+                        document.getElementById('name-error').classList.add('visible');
+                        input.classList.add('error');
+                    } else if (input.id === 'email') {
+                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (input.required && !input.value.trim()) {
+                            document.getElementById('email-error').textContent = '請輸入您的電子郵件';
+                            document.getElementById('email-error').classList.add('visible');
+                            input.classList.add('error');
+                        } else if (input.value.trim() && !emailPattern.test(input.value.trim())) {
+                            document.getElementById('email-error').textContent = '請輸入有效的電子郵件地址';
+                            document.getElementById('email-error').classList.add('visible');
+                            input.classList.add('error');
+                        }
+                    } else if (input.id === 'phone') {
+                        // 限制只能輸入數字
+                        input.addEventListener('keypress', function(e) {
+                            // 只允許數字
+                            if (!/\d/.test(e.key)) {
+                                e.preventDefault();
+                                document.getElementById('phone-error').textContent = '請只輸入數字';
+                                document.getElementById('phone-error').classList.add('visible');
+                            }
+                        });
+                        
+                        // 處理貼上事件
+                        input.addEventListener('paste', function(e) {
+                            setTimeout(() => {
+                                // 清除非數字字符
+                                const cleanedValue = input.value.replace(/\D/g, '');
+                                if (cleanedValue !== input.value) {
+                                    input.value = cleanedValue;
+                                    document.getElementById('phone-error').textContent = '已移除非數字字符，請使用純數字格式';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                }
+                                
+                                // 檢查是否符合台灣手機號碼格式
+                                if (cleanedValue && !cleanedValue.startsWith('09')) {
+                                    document.getElementById('phone-error').textContent = '台灣手機號碼應以09開頭';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                } else if (cleanedValue && cleanedValue.length !== 10) {
+                                    document.getElementById('phone-error').textContent = '台灣手機號碼應為10位數字';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                }
+                            }, 0);
+                        });
+                        
+                        // 離開欄位時驗證電話號碼格式
+                        input.addEventListener('blur', function() {
+                            if (input.value.trim()) {
+                                // 移除所有非數字字符
+                                const digitsOnly = input.value.replace(/\D/g, '');
+                                input.value = digitsOnly; // 設置為純數字格式
+                                
+                                // 檢查是否符合台灣手機號碼格式（09開頭，共10位數字）
+                                if (!/^09\d{8}$/.test(digitsOnly)) {
+                                    document.getElementById('phone-error').textContent = '請輸入有效的台灣手機號碼（例如：0912345678）';
+                                    document.getElementById('phone-error').classList.add('visible');
+                                    input.classList.add('error');
+                                }
+                            }
+                        });
+                    } else if (input.id === 'message' && input.required && !input.value.trim()) {
+                        document.getElementById('message-error').textContent = '請輸入您的問題或需求';
+                        document.getElementById('message-error').classList.add('visible');
+                        input.classList.add('error');
+                    }
+                });
+                
+                // 當用戶開始輸入時清除錯誤狀態
+                input.addEventListener('input', function() {
+                    const errorElement = document.getElementById(`${input.id}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.classList.remove('visible');
+                    }
+                    input.classList.remove('error');
+                });
+            });
+        }
     </script>
 </body>
 </html>

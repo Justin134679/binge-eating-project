@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 使用動態渲染方式用於Vercel，這樣能確保CSS模塊正確工作
-  output: 'standalone',
+  // 使用靜態導出模式，這樣可以生成靜態HTML文件
+  output: 'export',
   
   // 設定基礎路徑為空，適用於Vercel環境
   basePath: '',

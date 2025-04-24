@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "next build",
+  "buildCommand": "npm run export",
   "cleanUrls": true,
   "github": {
     "silent": true
@@ -8,4 +8,4 @@
   "env": {
     "VERCEL": "true"
   }
-} 
+}

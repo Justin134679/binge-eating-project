@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build && cp index.html test-form.html out/",
     "start": "next start",
     "lint": "next lint",
-    "export": "next build",
+    "export": "next build && cp index.html test-form.html out/",
     "deploy": "gh-pages -d out --dotfiles"
   },
   "dependencies": {
