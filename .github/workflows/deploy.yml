@@ -22,8 +22,8 @@ jobs:
       - name: Install Dependencies 📦
         run: npm ci # 使用 ci 命令安裝依賴，這比 npm install 更適合 CI 環境
       
-      - name: Build and Export 🏗️
-        run: npm run build && npm run export # 構建並導出靜態文件
+      - name: Build 🏗️
+        run: npm run build # 僅執行構建
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
