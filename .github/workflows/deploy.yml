@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ] # 當推送到 main 分支時觸發
+  workflow_dispatch: # 允許手動觸發
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3 # 檢出代碼
+      
+      - name: Setup Node.js ⚙️
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # 使用 Node.js 20 版本
+          cache: 'npm' # 緩存 npm 依賴
+      
+      - name: Install Dependencies 📦
+        run: npm ci # 使用 ci 命令安裝依賴，這比 npm install 更適合 CI 環境
+      
+      - name: Build and Export 🏗️
+        run: npm run build && npm run export # 構建並導出靜態文件
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      
+      - name: Add .nojekyll file 📄
+        run: touch out/.nojekyll # 防止 GitHub Pages 使用 Jekyll 處理
+      
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: out # 部署 out 目錄中的靜態文件
+          branch: gh-pages # 部署到 gh-pages 分支 
